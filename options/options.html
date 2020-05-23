@@ -1,0 +1,167 @@
+<html>
+<head>
+    <script src="../js/jquery.min.js"></script>
+    <script src="jquery.easyui.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
+    <script src="options.js"></script>
+    <link rel="stylesheet" href="jquery-ui.min.css">
+    <link rel="stylesheet" href="easyui.css">
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+<div class="easyui-tabs" id="tabs">
+    <ul>
+        <li><a href="#tabs-1">User Managment</a></li>
+        <li><a href="#tabs-2">Config</a></li>
+        <li><a href="#tabs-3">Logs</a></li>
+        <li><a href="#tabs-4">Page Logs</a></li>
+    </ul>
+    <div id="tabs-1" title="User Status" style="padding:10px">
+        <table id="tbUser" class="easyui-datagrid">
+            <thead>
+            <tr>
+                <th data-options="field:'name',width:30">Name</th>
+                <th data-options="field:'status',width:30">Status</th>
+                <th data-options="field:'skip',width:20">Skip</th>
+                <th data-options="field:'ck',checkbox:true">Set Skip</th>
+            </tr>
+            </thead>
+        </table>
+        <table class="tb">
+            <tr>
+                <td>
+                    <input id="saveUser" type="button" class="btn btn-success" value="Save" />
+                    <input id="inputUser" type="button" class="btn btn-success" value="Input User"/>
+                    Is CSV
+                    <input id="isCSV" type="checkbox" />
+                </td>
+            </tr>
+            <tr>
+                <td><textarea id="userContent" style="width:800px;height:480px;">name	account	pass	type	typepage	country1	Family name	Given name	Gender	Date of Birth	Country of Birth	Street Name	City	Address Country	Email	passport	huzhao	naid	expi	planto	havebeen	ifdate	nameofpayer	method	creatd	security	expirecar	PERSON	receiver
+刘花花2	dahuahua2	Whv123456	WHV	SFV	China	huang2	mingming2	female	19950104	China	Jie Fang Road	Shenzhen	China	23423@57.com	E002	20200204	20020203	20190103	20170810	YES	20140302	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花3	dahuahua3	Whv123456	WHV	WHV	China	huang3	mingming3	male	19950105	China	Jie Fang Road	Shenzhen	China	23423@58.com	E003	20200205	20020204	20190104	20170811	YES	20150320	ZHANG SAN	MasterCard	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花4	dahuahua4	Whv123456	WHV	SFV	China	huang4	mingming4	female	19950106	China	Jie Fang Road	Shenzhen	China	23423@59.com	E004	20200206	20020205	20190105	20170812	YES	20160101	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花5	dahuahua5	Whv123456	WHV	SFV	China	huang5	mingming5	female	19950107	China	Jie Fang Road	Shenzhen	China	23423@60.com	E005	20200206	20020205	20190105	20170812	YES	20160102	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花6	dahuahua6	Whv123456	WHV	SFV	China	huang6	mingming6	female	19950108	China	Jie Fang Road	Shenzhen	China	23423@61.com	E006	20200206	20020205	20190105	20170812	YES	20160103	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花7	dahuahua7	Whv123456	WHV	SFV	China	huang7	mingming7	female	19950109	China	Jie Fang Road	Shenzhen	China	23423@62.com	E007	20200206	20020205	20190105	20170812	YES	20160104	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花8	dahuahua8	Whv123456	WHV	SFV	China	huang8	mingming8	female	19950110	China	Jie Fang Road	Shenzhen	China	23423@63.com	E008	20200206	20020205	20190105	20170812	YES	20160105	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花9	dahuahua9	Whv123456	WHV	SFV	China	huang9	mingming9	female	19950111	China	Jie Fang Road	Shenzhen	China	23423@64.com	E009	20200206	20020205	20190105	20170812	YES	20160106	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花10	dahuahua10	Whv123456	WHV	WHV	China	huang10	mingming10	female	19950111	China	Jie Fang Road	Shenzhen	China	23423@65.com	E009	20200206	20020205	20190105	20170812	YES	20160106	ZHANG SAN	VISA	6222530615584310	777	201908	ZHANG SAN	13986226745
+刘花花1	dahuahua1	Whv123456	WHV	WHV	China	huang1	mingming1	male	19950103	China	Jie Fang Road	Shenzhen	China	23423@56.com	E009	20200203	20020202	20190102	20170809	NO		ZHANG SAN	MasterCard	6222530615584310	777	201908	ZHANG SAN	13986226745
+</textarea></td>
+            </tr>
+        </table>
+    </div>
+    <div id="tabs-2" title="Config" style="padding:10px">
+        <table class="tb">
+            <tr>
+                <td>Table ID</td>
+                <td><input id="tbID" type="text"/></td>
+                <td colspan="2"><input id="deleteTable" type="button" class="btn btn-success" value="Post delete table"/></td>
+            </tr>
+            <tr>
+                <td>VPS IP</td>
+                <td colspan="3"><input id="ip" type="text" style="width: 500px;" value="_ch"/></td>
+            </tr>
+            <tr>
+                <td>First Page</td>
+                <td colspan="3"><input id="fp" type="text" style="width: 500px;" value="https://onlineservices.immigration.govt.nz/secure/Login+Working+Holiday.htm"/></td>
+            </tr>
+            <tr>
+                <td>Country ID</td>
+                <td colspan="3"><input id="cid" type="text" value="130"/></td>
+            </tr>
+            <tr>
+                <td>SMS Receiver</td>
+                <td colspan="3"><input id="telephone" type="text" style="width: 500px;" value="13629262402;15029249426;13986226745"/></td>
+            </tr>
+            <tr>
+                <td>Refresh Word</td>
+                <td colspan="3"><input id="refeshWord" type="text" style="width: 500px;" value="no scheme open;Unfortunately"/></td>
+            </tr>
+            <tr>
+                <td>Random refresh time</td>
+                <td colspan="3">
+                    <input id="rr1" type="text" value="0"/>ms-
+                    <input id="rr2" type="text" value="10"/>ms
+                </td>
+            </tr>
+            <tr>
+                <td>Post Count</td>
+                <td colspan="3">
+                    <input id="postCreatCount" type="text" value="1"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Start Hour</td>
+                <td>
+                    <input id="startHour" type="text" value="10"/>
+                </td>
+                <td>Start Minute</td>
+                <td>
+                    <input id="startMinute" type="text" value="0"/>
+                </td>
+            </tr>
+            <tr>
+                <td>SMS platform 1</td>
+                <td colspan="3"><input id="SMS1" type="checkbox"/></td>
+            </tr>
+            <tr>
+                <td>Debug Mode</td>
+                <td><input id="debug" type="checkbox" /></td>
+                <td>Quickly Mode</td>
+                <td><input id="quick" type="checkbox" checked="true" /></td>
+            </tr>
+            <tr>
+                <td>Next User Auto Start</td>
+                <td><input id="autoStart" type="checkbox" /></td>
+                <td>Post</td>
+                <td><input id="post" type="checkbox" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input id="saveConfig" type="button" class="btn btn-success" value="Save"/></td>
+            </tr>
+        </table>
+    </div>
+    <div id="tabs-3" title="Logs" style="padding:10px">
+        <table class="tb" width="800px; overflow:auto;">
+            <tr>
+                <td>
+                    <input id="removeLogs" type="button" class="btn btn-success" value="Remove logs"/>
+                </td>
+            </tr>
+            <tr style="width: 95%; height: 100px;">
+                <td style="vertical-align: top;">
+                    log:
+                    <br>
+
+                    <div id="logs">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="tabs-4" title="Logs" style="padding:10px">
+        <table class="tb" width="800px; overflow:auto;">
+            <tr>
+                <td>
+                    <input id="removePageLogs" type="button" class="btn btn-success" value="Remove page logs"/>
+                </td>
+            </tr>
+            <tr style="width: 95%; height: 100px;">
+                <td style="vertical-align: top;">
+                    log:
+                    <br>
+
+                    <div id="pageLogs">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,55 @@
+
+{
+  "name": "New WHV Fill",
+  "description": "This extension provide user with using hotkey to open website and fill form",
+  "version": "0.44.0",
+  "options_page": "options/options.html",
+  "manifest_version": 2,
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html",
+	"default_title": "HotkeyFill"
+  },
+  "background": {
+    "scripts": ["js/jquery.min.js", "js/background.js"]
+  },
+  "permissions": [ "tabs", "http://*/*", "https://*/*", "<all_urls>","contextMenus", "activeTab", "webRequest", "webRequestBlocking", "bookmarks",
+    "notifications", "unlimitedStorage", "storage", "cookies", "privacy", "proxy"],
+  "content_scripts": [{
+    "matches": ["*://*.immigration.govt.nz/PaymentGateway/*"],
+    "run_at": "document_end",
+    "js": ["js/jquery.min.js", "js/payName.js"]
+  },{
+    "matches": ["<all_urls>"],
+    "js": ["js/jquery.min.js", "js/contentscript.js"]
+  },{
+    "matches": ["*://*.immigration.govt.nz/migrant/default.htm", "*://*.immigration.govt.nz/WorkingHoliday/Application/Pay.aspx?ApplicationId=*",
+    "*://*.immigration.govt.nz/WorkingHoliday/Wizard/Personal1.aspx*", "*://*.immigration.govt.nz/secure/Login+Working+Holiday.htm*"],
+    "run_at": "document_start",
+    "js": ["js/jquery.min.js", "js/defaultGO.js"]
+  }],
+  "commands": {
+    "star-fill": {
+      "suggested_key": { "default": "Alt+1" },
+      "description": "Auto Mode"
+    },
+    "half-auto": {
+      "suggested_key": { "default": "Alt+2" },
+      "description": "Auto Fill no Click"
+    },
+    "half-auto1": {
+      "suggested_key": { "default": "Alt+3" },
+      "description": "Auto Fill & redirect"
+    },
+    "next-user": {
+      "suggested_key": { "default": "Alt+4" },
+      "description": "Next User"
+    }
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}
+
+
+
+

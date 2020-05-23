@@ -1,0 +1,12 @@
+
+div.contentstyle {
+	height: 300px;
+	overflow: auto;
+}
+.tb {
+	width: 800px;
+	border: 1px;
+}
+.tb td {
+	text-align: left;
+}
