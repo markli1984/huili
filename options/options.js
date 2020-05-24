@@ -20,6 +20,7 @@ function initData(){
 			var config = o['config'];
 			$("#ip").val(config.ip);
 			$("#fp").val(config.fp);
+            $("#debug").attr('checked', config.debug);
 		} else {
 			saveConfig();
 		}
@@ -48,6 +49,7 @@ function saveConfig(){
 	var data = {};
 	data.ip = $("#ip").val();
 	data.fp = $("#fp").val();
+    data.debug = $("#debug").is(':checked');
 	data.startHour = parseInt($("#startHour").val());
 	data.startMinute = parseInt($("#startMinute").val());
 	storage.set({config: data});

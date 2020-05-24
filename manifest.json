@@ -14,13 +14,9 @@
   "background": {
     "scripts": ["js/jquery.min.js", "js/background.js"]
   },
-  "permissions": [ "tabs", "http://*/*", "https://*/*", "<all_urls>","contextMenus", "activeTab", "webRequest", "webRequestBlocking", "bookmarks",
-    "notifications", "unlimitedStorage", "storage", "cookies", "privacy", "proxy"],
+  "permissions": [ "tabs", "http://*/*", "https://*/*", "<all_urls>", "contextMenus", "activeTab", "webRequest", "webRequestBlocking",
+    "unlimitedStorage", "storage"],
   "content_scripts": [{
-    "matches": ["*://*.immigration.govt.nz/PaymentGateway/*"],
-    "run_at": "document_end",
-    "js": ["js/jquery.min.js", "js/payName.js"]
-  },{
     "matches": ["<all_urls>"],
     "js": ["js/jquery.min.js", "js/contentscript.js"]
   }],
@@ -33,8 +29,7 @@
       "suggested_key": { "default": "Alt+2" },
       "description": "Auto Fill no Click"
     }
-  },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  }
 }
 
 
