@@ -1,8 +1,8 @@
 
 {
-  "name": "New WHV Fill",
+  "name": "HuiLi Auto Fill",
   "description": "This extension provide user with using hotkey to open website and fill form",
-  "version": "0.44.0",
+  "version": "0.1.0",
   "options_page": "options/options.html",
   "manifest_version": 2,
 
@@ -23,11 +23,6 @@
   },{
     "matches": ["<all_urls>"],
     "js": ["js/jquery.min.js", "js/contentscript.js"]
-  },{
-    "matches": ["*://*.immigration.govt.nz/migrant/default.htm", "*://*.immigration.govt.nz/WorkingHoliday/Application/Pay.aspx?ApplicationId=*",
-    "*://*.immigration.govt.nz/WorkingHoliday/Wizard/Personal1.aspx*", "*://*.immigration.govt.nz/secure/Login+Working+Holiday.htm*"],
-    "run_at": "document_start",
-    "js": ["js/jquery.min.js", "js/defaultGO.js"]
   }],
   "commands": {
     "star-fill": {
@@ -37,14 +32,6 @@
     "half-auto": {
       "suggested_key": { "default": "Alt+2" },
       "description": "Auto Fill no Click"
-    },
-    "half-auto1": {
-      "suggested_key": { "default": "Alt+3" },
-      "description": "Auto Fill & redirect"
-    },
-    "next-user": {
-      "suggested_key": { "default": "Alt+4" },
-      "description": "Next User"
     }
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"

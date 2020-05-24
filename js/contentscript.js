@@ -6,7 +6,6 @@ var WHV_CHECK_TABLE = "immigration.govt.nz/WorkingHoliday/";
 var WHV_URL_HOME = "immigration.govt.nz/migrant/default.htm";
 
 var storage = chrome.storage.local;
-var currentUser = {index: 0, user: null};
 var halfAuto = true;
 var debugMode = true;
 
@@ -26,9 +25,6 @@ chrome.runtime.onMessage.addListener(function(msg){
 			halfAuto = true;
 			main(false);
 			break;
-		case "gotoCheck":
-			GotoUrl("https://onlineservices." + WHV_CHECK_TABLE);
-			break;
 		case "goUrl":
 			GotoUrl(msg.data);
 			break;
@@ -45,7 +41,7 @@ function init(){
 
 function initCommand(callback){
 	storage.get(["halfAuto", "halfAuto1"], function (o) {
-		if (o.hasOwnProperty('halfAuto') && o.hasOwnProperty('halfAuto1')) {
+		if (o.hasOwnProperty('halfAuto')) {
 			halfAuto = o['halfAuto'];
 		}
 		callback();
@@ -53,137 +49,33 @@ function initCommand(callback){
 }
 
 function main(checkha){
-	storage.get(['currentUser', 'config'], function (o) {
-		if (o.hasOwnProperty('currentUser') && o.hasOwnProperty('config')) {
-			currentUser = o['currentUser'];
+	storage.get(['config'], function (o) {
+		if (o.hasOwnProperty('config')) {
 			var config = o['config'];
 			debugMode = config.debug;
-			COUNTRY_ID = config.cid;
-			WHV_URL_FIRST = config.fp;
-			checkUrl(currentUser.user, checkha, false);
+			selectCount();
 		}
 	});
 }
 
-function checkInvalid() {
-	if ($("*").html().toLowerCase().indexOf("invalid request") > -1) {
-		saveLog("invalid request!!!");
-		sendMessage("clearCookies");
-		return false;
-	}
-	return true;
+function selectCount(){
+	var inputPair = [];
+	inputPair.push({
+		inputid: "BQty",
+		value: "5"
+	});
+	inputPair.push({
+		inputid: "OrderSide",
+		value: "5"
+	});
+	fillTable(inputPair);
 }
 
 function checkUrl(user, checkha) {
 	var url = location.href;
 	var title = $('title').text() || "";
 
-	if(!checkInvalid()){
-		return;
-	}
-
-	if (url.toLowerCase().indexOf(WHV_PAY_RESULT.toLowerCase()) > -1) {
-		checkResult(user);
-		return;
-	}
-
-	//check half-auto
-	if (checkha && (halfAuto || halfAuto1)) {
-		return;
-	}
-
-	if(user.status === 10 || user.skip) {
-		user.skip = true;
-		sendMessage("skipUser", user);
-		return;
-	}
-
-	if (url.toLowerCase().indexOf("error") > -1 || url.toLowerCase().indexOf("accessdenied") > -1
-		|| (url.indexOf(WHV_URL) === -1 && url.indexOf(PAY_URL) === -1)) {
-		if(user.status !== 9){
-			sendMessage("restoreLog", "", user.name);
-			return;
-		}
-	} else if (title.toLowerCase().indexOf("problem loading page") > -1 || title.toLowerCase().indexOf("error") > -1 ||
-		title.toLowerCase().indexOf("无法访问") > -1) {
-		if(user.status !== 9){
-			startLoginPage();
-			return;
-		}
-	}
-	if (url.toLowerCase().indexOf(WHV_LOGIN_ADDR.toLowerCase()) > -1 || url.toLowerCase().indexOf(WHV_LOGIN_ADDR1.toLowerCase()) > -1 ||
-		url.toLowerCase().indexOf(SFV_LOGIN_ADDR.toLowerCase()) > -1 || url.toLowerCase().indexOf(WHV_LOGIN_ADDR2.toLowerCase()) > -1 ||
-		url.toLowerCase().indexOf(WHV_LOGIN_ADDR3.toLowerCase()) > -1) {
-		login(user);
-	} else if (url.toLowerCase().indexOf(WHV_URL_HOME.toLowerCase()) > -1) {
-		user.status = 1;
-		updateUserInfo(user);
-		if(halfAuto){
-			return;
-		}
-
-		if (user.status >= 2) {
-			//have table
-			if (user.tableEditUrl) {
-				if (user.status === 7) {
-					GotoUrl("https://onlineservices." + WHV_SUBMIT_TABLE + user.ApplicationID);
-				} else if (user.status === 8) {
-					GotoUrl("https://onlineservices." + WHV_PAY_TABLE + user.ApplicationID);
-				} else {
-					GotoUrl(user.tableEditUrl);
-				}
-			}
-			else {
-				homeClick();
-			}
-		} else {
-			//no table
-			GotoUrl("https://onlineservices." + WHV_CHECK_TABLE);
-		}
-	} else if (url.toLowerCase().indexOf(WHV_CREATE_TABLE.toLowerCase()) > -1) {
-		user.status = 1;
-		updateUserInfo(user);
-		createTable(user);
-	} else if (url.toLowerCase().indexOf("immigration.govt.nz/WorkingHoliday/Wizard/Personal1.aspx?ApplicationId=".toLowerCase()) > -1) {
-		user.status = user.status < 2 ? 2 : user.status;
-		user.ApplicationID = GetApplicationId(url);
-		user.tableEditUrl = "https://onlineservices.immigration.govt.nz/WorkingHoliday/Wizard/Personal1.aspx?ApplicationId="
-			+ user.ApplicationID + "&IndividualType=Primary&IndividualIndex=1";
-		updateUserInfo(user);
-
-		fillPersonal(user);
-	} else if (url.toLowerCase().indexOf(WHV_PAYER_DETAIL.toLowerCase()) > -1) {
-		user.status = 8;
-		user.Token = GetApplicationId(url, "Token");
-		updateUserInfo(user);
-		payerDetail(user, user.Token);
-	} else if (url.toLowerCase().indexOf(PAY_URL.toLowerCase() + "/hosted") > -1 && title.toLowerCase().indexOf("Paymark Merchant Payment".toLowerCase()) > -1) {
-		user.status = 9;
-		updateUserInfo(user);
-		cardPay(user);
-	} else if (url.toLowerCase().indexOf(WHV_CHECK_TABLE.toLowerCase()) > -1 || url.toLowerCase().indexOf(WHV_CHECK_TABLE1.toLowerCase()) > -1) {
-		checkTable(user);
-	} else {
-		console.log(url);
-		saveLog("Unexpected url : " + url);
-	}
-}
-
-function GetApplicationId(tabUrl, para) {
-	var index = tabUrl.indexOf("?");
-	tabUrl = tabUrl.substr(index, tabUrl.length - index).substr(1);
-	if(!para){
-		para = "ApplicationId";
-	}
-	return GetQueryString(tabUrl, para);
-}
-
-function GetQueryString(url, name) {
-	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-	var r = url.match(reg);
-	if (r != null)
-		return r[2];
-	return null;
+	console.log(url);
 }
 
 function freshPage() {
@@ -236,10 +128,10 @@ function checkTable(user) {
 	if ($("table#" + TABLE_ID).length > 0) {
 		//have table
 		var tableID = $("#ContentPlaceHolder1_applicationList_applicationsDataGrid_referenceNumberLabel_0").text();
-		user.status = 2;
+
 		user.successCreate = true;
 		user.ApplicationID = tableID;
-		updateUserInfo(user);
+
 
 		//pay for table
 		if ($("#ContentPlaceHolder1_applicationList_applicationsDataGrid_payHyperLink_0").length > 0) {
@@ -260,87 +152,10 @@ function checkTable(user) {
 				return;
 			}
 		}
-
-		//submit table
-		if ($("#ContentPlaceHolder1_applicationList_applicationsDataGrid_submitHyperlink_0").length > 0) {
-			user.successPerson1 = true;
-			user.successPerson2 = true;
-			user.successMedical = true;
-			user.successCharacter = true;
-			user.successSpecial = true;
-			user.status = 7;
-			updateUserInfo(user);
-			if (post && !halfAuto) {
-				sendMessage("postSubmit", tableID, user);
-			}
-			if (!halfAuto) {
-				document.getElementById("ContentPlaceHolder1_applicationList_applicationsDataGrid_submitHyperlink_0").click();
-				return;
-			}
-		}
-
-		//edit table
-		if ($("#ContentPlaceHolder1_applicationList_applicationsDataGrid_editHyperLink_0").length > 0) {
-			if (post && !halfAuto) {
-				sendMessage("postTable", tableID);
-			}
-
-			if (!halfAuto) {
-				document.getElementById("ContentPlaceHolder1_applicationList_applicationsDataGrid_editHyperLink_0").click();
-				return;
-			}
-		}
-
-		//received whv visa
-		/*if($("#ctl00_ContentPlaceHolder1_applicationList_applicationsDataGrid_ctl02_paymentStatusLabel").length > 0 &&
-			$("#ctl00_ContentPlaceHolder1_applicationList_applicationsDataGrid_ctl02_paymentStatusLabel").text().indexOf("Received") > -1){
-			user.status = 10;
-			updateUserInfo(user);
-			sendMessage("skipUser", user);
-		}*/
 	} else {
-		if (post && !halfAuto) {
-			storage.get(['currentUser'], function (o) {
-				if (o.hasOwnProperty('currentUser')) {
-					//clear table id stored in user
-					var currentUser = o['currentUser'];
-					currentUser.user.ApplicationID = null;
-					storage.set({currentUser: currentUser});
-
-					sendMessage("postCreate", user);
-				}
-			});
-		}
-
 		if (!halfAuto) {
 			GotoUrl("https://onlineservices." + WHV_CREATE_TABLE + COUNTRY_ID);
 		}
-	}
-}
-
-function createTable(user) {
-	if (post && !halfAuto) {
-		sendMessage("postCreate", user.name);
-	}
-
-	if ($("#ctl00_ContentPlaceHolder1_applyNowButton").length > 0) {
-		if(!halfAuto) {
-			$("#ctl00_ContentPlaceHolder1_applyNowButton").click();
-			return;
-		}
-	}
-
-	if($("#ctl00_ContentPlaceHolder1_errorMessageLabel").length > 0){
-		user.status = user.status < 2 ? 2 : user.status;
-		sendMessage("haveTable", user);
-		return;
-	}
-
-	if($("#ctl00_ContentPlaceHolder1_statusLabel").length > 0  &&
-		$("#ctl00_ContentPlaceHolder1_statusLabel").text().indexOf("Unfortunately the available") > -1){
-		halfAuto = true;
-		storage.set({halfAuto: halfAuto});
-		freshPage();
 	}
 }
 
@@ -478,52 +293,6 @@ function transDate(date) {
 	return strDate;
 }
 
-function setTableMarkTrue(){
-    storage.get(['currentUser'], function (o) {
-        var user = o['currentUser'].user;
-        user.successPerson1 = true;
-        user.successPerson2 = true;
-        user.successMedical = true;
-        user.successCharacter = true;
-        user.successSpecial = true;
-        if (post && !halfAuto) {
-            sendMessage("postSubmit", GetApplicationId(location.href), user);
-        }
-    });
-}
-
-function checkResult(user){
-	saveHtml(user);
-	user.status = 10;
-	updateUserInfo(user);
-}
-
-function saveHtml(user){
-	storage.get(['pageLogs'], function (o) {
-		if (o.hasOwnProperty('pageLogs')) {
-			var pageLogs = o['pageLogs'];
-			var isExist = false;
-			for (var i = 0; i < pageLogs.length; i++) {
-				if (pageLogs[0].Name === user.name) {
-					isExist = true;
-					pageLogs[0].Time = getNowFormatDate();
-					pageLogs[0].PageContent = $("*").html();
-				}
-			}
-
-			if (!isExist) {
-				var page = {
-					Name: user.name,
-					Time: getNowFormatDate(),
-					PageContent: $("*").html()
-				};
-				pageLogs.push(page);
-			}
-			storage.set({pageLogs: pageLogs});
-		}
-	});
-}
-
 function saveLog(log){
 	storage.get(['Logs'], function (o) {
 		if (o.hasOwnProperty('Logs')) {
@@ -550,19 +319,6 @@ function getNowFormatDate() {
 		+ " " + date.getHours() + seperator2 + date.getMinutes()
 		+ seperator2 + date.getSeconds();
 	return currentDate;
-}
-
-function updateUserInfo (user) {
-	storage.get(['currentUser', 'users'], function (o) {
-		if (o.hasOwnProperty('currentUser') && o.hasOwnProperty('users')) {
-			var users = o['users'];
-			var currentUser = o['currentUser'];
-			currentUser.user = user;
-			users[currentUser.index] = user;
-			storage.set({currentUser: currentUser});
-			storage.set({users: users});
-		}
-	});
 }
 
 function sendMessage(cmd, data, name){
