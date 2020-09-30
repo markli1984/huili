@@ -2,6 +2,12 @@
  * @author Li Chunhui
  */
 
+// location.href 是这些时，执行对应的功能
+var YC_Login = "https://chinacu.bsgroup.com.hk/trading/pns/bsmart/login/gb/login_BSS.aspx";
+var YC_Main = "chinacu.bsgroup.com.hk/mts.web/client/BSMARTLoginDisclaimer.aspx"
+var YC_IPOlist = "chinacu.bsgroup.com.hk/bsmart.web/IPOList.aspx";
+var YC_IPOApply = "chinacu.bsgroup.com.hk/bsmart.web/IPOInput.aspx";
+
 var storage = chrome.storage.local;
 var halfAuto = true;
 var debugMode = true;
@@ -47,56 +53,36 @@ function main(){
 		if (o.hasOwnProperty('config')) {
 			var config = o['config'];
 			debugMode = config.debug;
-            checkContent();
+			checkUrl();
 		}
 	});
 }
 
-function checkContent(){
-    var content = $("*").html();
-    if (content.indexOf("新股輸入") > -1 || content.indexOf("新股输入") > -1 ) {
-        selectCount();
-    } else {
-        selectShare();
-    }
-}
-
-//选择新股
-function selectShare(){
-    var shares = $(".ClickButton");
-    if (shares.length > 0){
-        shares[0].click();
-        setTimeout(function () {
-            selectCount();
-        }, 100);
-    }
-}
-
-//选择数量
-function selectCount(){
-	var inputPair = [];
-	inputPair.push({
-		inputid: "BQty",
-		value: "5"
-	});
-	inputPair.push({
-		inputid: "OrderSide",
-		value: "5"
-	});
-	if($("input[value='提交']").length > 0){
-	    if(!debugMode){
-            $("input[value='提交']").click();
-        }
-    }
-
-	fillTable(inputPair);
-}
-
 function checkUrl(user, checkha) {
 	var url = location.href;
-	var title = $('title').text() || "";
+	//var title = $('title').text() || "";
+
+	if (url.toLowerCase().indexOf(YC_Main.toLowerCase()) > -1) {
+		GotoUrl("https://" + YC_IPOlist)
+	} else if (url.toLowerCase().indexOf(YC_IPOlist.toLowerCase()) > -1) {
+		selectIPO();
+	} else if (url.toLowerCase().indexOf(YC_IPOApply.toLowerCase()) > -1) {
+		fillIPO();
+	}
 
 	console.log(url);
+}
+
+function GetQueryString(url, name) {
+	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+	var r = url.match(reg);
+	if (r != null)
+		return r[2];
+	return null;
+}
+
+function GotoUrl(url) {
+	location.href = url;
 }
 
 function freshPage() {
@@ -104,25 +90,55 @@ function freshPage() {
 	GotoUrl(url);
 }
 
-function GotoUrl(url) {
-	location.href = url;
+function autoFresh(){
+	setTimeout(function () {
+		freshPage();
+	}, 30000);
 }
 
-function fillPersonal(user) {
+function checkLogin(){
+	var content = $("*").html();
+	if (content.indexOf("登入已無效,請重新登入") > -1) {
+		GotoUrl(YC_Login);
+		return false;
+	}
+	return true;
+}
+
+function selectIPO(number){
 	try {
-		var inputPair = [];
-		inputPair.push({
-			inputid: "ContentPlaceHolder1_personDetails_genderDropDownList",
-			value: user.userinfo.gender.substr(0, 1).toUpperCase()
-		});
-		inputPair.push({
-			inputid: "ContentPlaceHolder1_addressContactDetails_address_countryDropDownList",
-			value: COUNTRY_ID//user.userinfo.addressCountry
-		});
-		inputPair.push({
-			inputid: "ContentPlaceHolder1_addressContactDetails_contactDetails_emailAddressTextBox",
-			value: user.userinfo.email
-		});
+		if (checkLogin()) {
+
+		}
+	} catch (err) {
+		console.error(err);
+		freshPage();
+	}
+}
+
+
+function fillIPO(user) {
+	try {
+		if (checkLogin()) {
+			var inputPair = [];
+			inputPair.push({
+				inputid: "ContentPlaceHolder1_personDetails_genderDropDownList",
+				value: user.userinfo.gender.substr(0, 1).toUpperCase()
+			});
+			inputPair.push({
+				inputid: "ContentPlaceHolder1_addressContactDetails_address_countryDropDownList",
+				value: COUNTRY_ID//user.userinfo.addressCountry
+			});
+			inputPair.push({
+				inputid: "ContentPlaceHolder1_addressContactDetails_contactDetails_emailAddressTextBox",
+				value: user.userinfo.email
+			});
+
+			//$("qty option[value='1000']").attr('selected', true);
+			fillTable(inputPair);
+
+			$("btnApply").click();
+		}
 	} catch (err) {
 		console.error(err);
 		freshPage();
