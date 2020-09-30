@@ -11,6 +11,9 @@ var YC_IPOApply = "chinacu.bsgroup.com.hk/bsmart.web/IPOInput.aspx";
 var storage = chrome.storage.local;
 var halfAuto = true;
 var debugMode = true;
+var IPONumber = "";
+var IPOCount = "";
+var reloadTime = 10;
 
 //快捷键
 chrome.runtime.onMessage.addListener(function(msg){
@@ -52,6 +55,8 @@ function main(){
 	storage.get(['config'], function (o) {
 		if (o.hasOwnProperty('config')) {
 			var config = o['config'];
+			IPONumber = config.IPONumber;
+			IPOCount = config.IPOCount;
 			debugMode = config.debug;
 			checkUrl();
 		}
@@ -108,7 +113,9 @@ function checkLogin(){
 function selectIPO(number){
 	try {
 		if (checkLogin()) {
-
+			var url = $("tr:contains(number)").children(":first").children("a")[0].href;
+			url = url.replace("IPODisclaimer.aspx", "IPOInput.aspx");
+			GotoUrl(url);
 		}
 	} catch (err) {
 		console.error(err);
@@ -117,27 +124,23 @@ function selectIPO(number){
 }
 
 
-function fillIPO(user) {
+function fillIPO(count) {
 	try {
 		if (checkLogin()) {
-			var inputPair = [];
-			inputPair.push({
-				inputid: "ContentPlaceHolder1_personDetails_genderDropDownList",
-				value: user.userinfo.gender.substr(0, 1).toUpperCase()
-			});
-			inputPair.push({
-				inputid: "ContentPlaceHolder1_addressContactDetails_address_countryDropDownList",
-				value: COUNTRY_ID//user.userinfo.addressCountry
-			});
-			inputPair.push({
-				inputid: "ContentPlaceHolder1_addressContactDetails_contactDetails_emailAddressTextBox",
-				value: user.userinfo.email
-			});
+			if($("#rbMargin")){
+				$("#rbMargin").click();
 
-			//$("qty option[value='1000']").attr('selected', true);
-			fillTable(inputPair);
+				var inputPair = [];
+				inputPair.push({
+					inputid: "qty",
+					value: count
+				});
 
-			$("btnApply").click();
+				//$("qty option[value='1000']").attr('selected', true);
+				fillTable(inputPair);
+
+				$("input[name='btnApply']").click();
+			}
 		}
 	} catch (err) {
 		console.error(err);

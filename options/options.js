@@ -18,8 +18,8 @@ function initData(){
 		}
 		if (o.hasOwnProperty('config')) {
 			var config = o['config'];
-			$("#ip").val(config.ip);
-			$("#fp").val(config.fp);
+			$("#IPONumber").val(config.IPONumber);
+			$("#IPOCount").val(config.IPOCount);
             $("#debug").attr('checked', config.debug);
 		} else {
 			saveConfig();
@@ -47,8 +47,8 @@ function removeLogs(){
 
 function saveConfig(){
 	var data = {};
-	data.ip = $("#ip").val();
-	data.fp = $("#fp").val();
+	data.IPONumber = $("#IPONumber").val();
+	data.IPOCount = $("#IPOCount").val();
     data.debug = $("#debug").is(':checked');
 	data.startHour = parseInt($("#startHour").val());
 	data.startMinute = parseInt($("#startMinute").val());

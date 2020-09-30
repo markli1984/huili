@@ -4,10 +4,10 @@
 var halfAuto = true;
 var storage = chrome.storage.local;
 var debugMode = false;
-var reloadTime = 10;
 var autoStart = false;
-var startHour = "10";
-var startMinute = "0";
+var IPONumber = "";
+var IPOCount = "";
+var reloadTime = 10;
 
 
 chrome.commands.onCommand.addListener(function (command) {
@@ -32,10 +32,9 @@ function GetConfig() {
     storage.get(['config'], function (o) {
         if (o.hasOwnProperty('config')) {
             var config = o['config'];
-            WHV_URL_FIRST = config.fp;
+            IPONumber = config.IPONumber;
+            IPOCount = config.IPOCount;
             debugMode = config.debug;
-            startHour = config.startHour;
-            startMinute = config.startMinute;
         }
     });
 }
