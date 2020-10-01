@@ -1,6 +1,6 @@
 
 {
-  "name": "HuiLi Auto Fill",
+  "name": "YaoCai Auto Fill",
   "description": "This extension provide user with using hotkey to open website and fill form",
   "version": "0.1.0",
   "options_page": "options/options.html",

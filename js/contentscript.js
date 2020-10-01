@@ -124,7 +124,7 @@ function selectIPO(){
 }
 
 
-function fillIPO(count) {
+function fillIPO() {
 	try {
 		if (checkLogin()) {
 			if($("#rbMargin")){
@@ -139,7 +139,7 @@ function fillIPO(count) {
 				//$("qty option[value='1000']").attr('selected', true);
 				fillTable(inputPair);
 
-				$("input[name='btnApply']").click();
+				//$("input[name='btnApply']").click();
 			}
 		}
 	} catch (err) {
@@ -174,5 +174,4 @@ function sendMessage(cmd, data, name){
 	});
 }
 
-//init();
-checkContent();
+init();

@@ -15,13 +15,11 @@ chrome.commands.onCommand.addListener(function (command) {
         console.log(getNowFormatDate() + "Press alt2");
         halfAuto = true;
         saveCommand();
-        sendMessage("halfAuto");
     }
 });
 
 saveCommand();
 listenMessages();
-checkStart();
 
 function saveCommand() {
     //init data
@@ -53,28 +51,6 @@ function createTab(callback) {
     });
 }
 
-function sendMessage(cmd, data) {
-    //send message
-    chrome.tabs.query({url: ["*://*.immigration.govt.nz/*", "*://webcomm.paymark.co.nz/hosted/*"]}, function (tabs) {
-        if (tabs.length > 0) {
-            chrome.tabs.sendMessage(tabs[0].id, {cmd: cmd, data: data}, function (response) {
-                console.log(getNowFormatDate() + cmd + " : " + response);
-            });
-        }
-    });
-}
-
-function gotoUrl(url) {
-    console.log(getNowFormatDate() + "go to url " + url);
-    chrome.tabs.query({url: ["*://*.immigration.govt.nz/*"]}, function (tabs) {
-        if (tabs.length > 0) {
-            chrome.tabs.executeScript(tabs[0].id, {
-                code: 'location.href = "' + url + '"'
-            });
-        }
-    });
-}
-
 /**
  * 监听消息请求
  */
@@ -94,31 +70,6 @@ function listenMessages() {
     });
 }
 
-function checkStart() {
-    setTimeout(function () {
-        var now = new Date();
-        if (now.getHours() !== 0) {
-            if (now.getHours() === startHour && now.getMinutes() === startMinute && now.getSeconds() === 0) {
-                halfAuto = false;
-                halfAuto1 = false;
-                saveCommand();
-                console.log(getNowFormatDate() + "Auto Start!!!!-----------------------------------");
-                sendMessage("start");
-            }
-        }
-
-        checkStart();
-    }, 1000);
-}
-
-function GetQueryString(url, name) {
-    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-    var r = url.match(reg);
-    if (r != null)
-        return r[2];
-    return null;
-}
-
 function getNowFormatDate() {
     var date = new Date();
     var seperator1 = "-";
@@ -135,9 +86,4 @@ function getNowFormatDate() {
         + " " + date.getHours() + seperator2 + date.getMinutes()
         + seperator2 + date.getSeconds();
     return "[" + currentdate + "]";
-}
-
-function rd(n, m) {
-    var c = m - n + 1;
-    return Math.floor(Math.random() * c + n);
 }

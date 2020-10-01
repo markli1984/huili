@@ -50,8 +50,8 @@ function saveConfig(){
 	data.IPONumber = $("#IPONumber").val();
 	data.IPOCount = $("#IPOCount").val();
     data.debug = $("#debug").is(':checked');
-	data.startHour = parseInt($("#startHour").val());
-	data.startMinute = parseInt($("#startMinute").val());
+	//data.startHour = parseInt($("#startHour").val());
+	//data.startMinute = parseInt($("#startMinute").val());
 	storage.set({config: data});
 	sendMessage("saveConfig");
 }
