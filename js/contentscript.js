@@ -63,7 +63,7 @@ function main(){
 	});
 }
 
-function checkUrl(user, checkha) {
+function checkUrl() {
 	var url = location.href;
 	//var title = $('title').text() || "";
 
@@ -110,10 +110,10 @@ function checkLogin(){
 	return true;
 }
 
-function selectIPO(number){
+function selectIPO(){
 	try {
 		if (checkLogin()) {
-			var url = $("tr:contains(number)").children(":first").children("a")[0].href;
+			var url = $("tr:contains(IPONumber)").children(":first").children("a")[0].href;
 			url = url.replace("IPODisclaimer.aspx", "IPOInput.aspx");
 			GotoUrl(url);
 		}
@@ -133,7 +133,7 @@ function fillIPO(count) {
 				var inputPair = [];
 				inputPair.push({
 					inputid: "qty",
-					value: count
+					value: IPOCount
 				});
 
 				//$("qty option[value='1000']").attr('selected', true);
