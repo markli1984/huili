@@ -4,7 +4,8 @@
 
 // location.href 是这些时，执行对应的功能
 var YC_Login = "https://chinacu.bsgroup.com.hk/trading/pns/bsmart/login/gb/login_BSS.aspx";
-var YC_Main = "chinacu.bsgroup.com.hk/mts.web/client/BSMARTLoginDisclaimer.aspx"
+var YC_Main = "chinacu.bsgroup.com.hk/mts.web/client/BSMARTLoginDisclaimer.aspx";
+var YC_IPOListRedirect = "https://chinacu.bsgroup.com.hk/mts.web//Redirect.aspx?url=%2fbsmart.web%2fLogin.aspx%3fsite%3dBSMART%26user%3d%7buser%7d%26language%3d%7blang%7d%26token%3d%7bayers_id%7d%26homePage%3d%2fbsmart.web%2fIPOList.aspx";
 var YC_IPOlist = "chinacu.bsgroup.com.hk/bsmart.web/IPOList.aspx";
 var YC_IPOApply = "chinacu.bsgroup.com.hk/bsmart.web/IPOInput.aspx";
 
@@ -13,6 +14,7 @@ var halfAuto = true;
 var debugMode = true;
 var IPONumber = "";
 var IPOCount = "";
+var autoFreshOpen = true;
 var reloadTime = 10;
 
 //快捷键
@@ -25,10 +27,12 @@ chrome.runtime.onMessage.addListener(function(msg){
 	switch(msg.cmd) {
 		case "start":
 			halfAuto = false;
+            autoFreshOpen = true;
 			main();
 			break;
 		case "halfAuto":
 			halfAuto = true;
+			autoFreshOpen = false;
 			main();
 			break;
 		default :
@@ -68,7 +72,7 @@ function checkUrl() {
 	//var title = $('title').text() || "";
 
 	if (url.toLowerCase().indexOf(YC_Main.toLowerCase()) > -1) {
-		GotoUrl("https://" + YC_IPOlist)
+		GotoUrl(YC_IPOListRedirect);
 	} else if (url.toLowerCase().indexOf(YC_IPOlist.toLowerCase()) > -1) {
 		selectIPO();
 	} else if (url.toLowerCase().indexOf(YC_IPOApply.toLowerCase()) > -1) {
@@ -96,9 +100,15 @@ function freshPage() {
 }
 
 function autoFresh(){
-	setTimeout(function () {
-		freshPage();
-	}, 30000);
+	if (autoFreshOpen && url.toLowerCase().indexOf(YC_IPOApply.toLowerCase()) > -1) {
+		if($("input[name='btnApply']")){
+			setTimeout(function () {
+				freshPage();
+
+				autoFresh();
+			}, 30000);
+		}
+	}
 }
 
 function checkLogin(){
@@ -113,13 +123,13 @@ function checkLogin(){
 function selectIPO(){
 	try {
 		if (checkLogin()) {
-			var url = $("tr:contains(IPONumber)").children(":first").children("a")[0].href;
+			var url = $("table #gridIPO tr:contains(" + IPONumber + ")").children(":first").children("a")[0].href
 			url = url.replace("IPODisclaimer.aspx", "IPOInput.aspx");
 			GotoUrl(url);
 		}
 	} catch (err) {
 		console.error(err);
-		freshPage();
+		//freshPage();
 	}
 }
 
@@ -140,11 +150,13 @@ function fillIPO() {
 				fillTable(inputPair);
 
 				//$("input[name='btnApply']").click();
+			} else {
+				autoFresh();
 			}
 		}
 	} catch (err) {
 		console.error(err);
-		freshPage();
+		//freshPage();
 	}
 }
 

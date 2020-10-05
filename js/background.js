@@ -4,10 +4,10 @@
 var halfAuto = true;
 var storage = chrome.storage.local;
 var debugMode = false;
-var autoStart = false;
 var IPONumber = "";
 var IPOCount = "";
-var reloadTime = 10;
+var YC_Main = "chinacu.bsgroup.com.hk/mts.web/client/BSMARTLoginDisclaimer.aspx";
+var YC_IPOApply = "chinacu.bsgroup.com.hk/bsmart.web/IPOInput.aspx";
 
 
 chrome.commands.onCommand.addListener(function (command) {
@@ -15,6 +15,13 @@ chrome.commands.onCommand.addListener(function (command) {
         console.log(getNowFormatDate() + "Press alt2");
         halfAuto = true;
         saveCommand();
+    } else if (command == "star-fill") {
+        console.log(getNowFormatDate() + "Press alt1");
+        halfAuto = false;
+        saveCommand();
+        createTab(function () {
+            sendMessage("start");
+        });
     }
 });
 
@@ -41,11 +48,11 @@ function createTab(callback) {
     chrome.tabs.query({}, function (tabs) {
         var haveNew = false;
         $.each(tabs, function (i, tab) {
-            if (tab.url.indexOf(WHV_URL) > -1 || tab.url.indexOf(PAY_URL) > -1)
+            if (tab.url.indexOf(YC_Main) > -1 || tab.url.indexOf(YC_IPOApply) > -1)
                 haveNew = true;
         });
         if (!haveNew) {
-            chrome.tabs.create({url: WHV_URL_FIRST, active: true});
+            chrome.tabs.create({url: "https://" + YC_Main, active: true});
         }
         callback(haveNew);
     });
@@ -67,6 +74,12 @@ function listenMessages() {
             default :
                 break;
         }
+    });
+}
+
+function sendMessage(cmd, data){
+    chrome.runtime.sendMessage({cmd: cmd, data: data}, function(response) {
+
     });
 }
 
