@@ -82,14 +82,6 @@ function checkUrl() {
 	console.log(url);
 }
 
-function GetQueryString(url, name) {
-	var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-	var r = url.match(reg);
-	if (r != null)
-		return r[2];
-	return null;
-}
-
 function GotoUrl(url) {
 	location.href = url;
 }
@@ -133,25 +125,38 @@ function selectIPO(){
 	}
 }
 
+function confirmIPO(content) {
+	if (content.indexOf("确认新股认购") > -1) {
+		//$("#btnApply").click();
+		console.log("------------------click-------------");
+	}
+}
 
 function fillIPO() {
 	try {
 		if (checkLogin()) {
-			if($("#rbMargin")){
-				$("#rbMargin").click();
-
-				var inputPair = [];
-				inputPair.push({
-					inputid: "qty",
-					value: IPOCount
-				});
-
-				//$("qty option[value='1000']").attr('selected', true);
-				fillTable(inputPair);
-
-				//$("input[name='btnApply']").click();
+			var content = $("*").html();
+			if (content.indexOf("确认新股认购") > -1) {
+				//$("#btnApply").click();
+				console.log("------------------click-------------");
+			} else if (content.indexOf("本公司现已确认及接受阁下之申请") > -1) {
+				//$("#btnOK").click();
+				console.log("------------------成功-------------");
 			} else {
-				autoFresh();
+				if ($("#rbMargin")) {
+					//$("#rbMargin").click();
+					var inputPair = [];
+					inputPair.push({
+						inputid: "qty",
+						value: IPOCount
+					});
+					fillTable(inputPair);
+
+					//$("#btnApply").click();
+					confirmIPO(content);
+				} else {
+					autoFresh();
+				}
 			}
 		}
 	} catch (err) {
