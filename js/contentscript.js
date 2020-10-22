@@ -8,14 +8,15 @@ var YC_Main = "chinacu.bsgroup.com.hk/mts.web/client/BSMARTLoginDisclaimer.aspx"
 var YC_IPOListRedirect = "https://chinacu.bsgroup.com.hk/mts.web//Redirect.aspx?url=%2fbsmart.web%2fLogin.aspx%3fsite%3dBSMART%26user%3d%7buser%7d%26language%3d%7blang%7d%26token%3d%7bayers_id%7d%26homePage%3d%2fbsmart.web%2fIPOList.aspx";
 var YC_IPOlist = "chinacu.bsgroup.com.hk/bsmart.web/IPOList.aspx";
 var YC_IPOApply = "chinacu.bsgroup.com.hk/bsmart.web/IPOInput.aspx";
+var YC_IPOConfirm = "chinacu.bsgroup.com.hk/bsmart.web/IPOInputConfirm.aspx";
 
 var storage = chrome.storage.local;
-var halfAuto = true;
 var debugMode = true;
 var IPONumber = "";
 var IPOCount = "";
 var autoFreshOpen = true;
-var reloadTime = 10;
+var needAutoFresh = false;
+var reloadTime = 30000;
 
 //快捷键
 chrome.runtime.onMessage.addListener(function(msg){
@@ -26,12 +27,10 @@ chrome.runtime.onMessage.addListener(function(msg){
 	}
 	switch(msg.cmd) {
 		case "start":
-			halfAuto = false;
             autoFreshOpen = true;
 			main();
 			break;
 		case "halfAuto":
-			halfAuto = true;
 			autoFreshOpen = false;
 			main();
 			break;
@@ -41,18 +40,7 @@ chrome.runtime.onMessage.addListener(function(msg){
 });
 
 function init(){
-	initCommand(function(){
-		main();
-	});
-}
-
-function initCommand(callback){
-	storage.get(["halfAuto"], function (o) {
-		if (o.hasOwnProperty('halfAuto')) {
-			halfAuto = o['halfAuto'];
-		}
-		callback();
-	});
+	main();
 }
 
 function main(){
@@ -77,6 +65,8 @@ function checkUrl() {
 		selectIPO();
 	} else if (url.toLowerCase().indexOf(YC_IPOApply.toLowerCase()) > -1) {
 		fillIPO();
+	} else if (url.toLowerCase().indexOf(YC_IPOConfirm.toLowerCase()) > -1) {
+		confirmIPO();
 	}
 
 	console.log(url);
@@ -98,7 +88,7 @@ function autoFresh(){
 				freshPage();
 
 				autoFresh();
-			}, 30000);
+			}, reloadTime);
 		}
 	}
 }
@@ -125,10 +115,12 @@ function selectIPO(){
 	}
 }
 
-function confirmIPO(content) {
-	if (content.indexOf("确认新股认购") > -1) {
-		//$("#btnApply").click();
-		console.log("------------------click-------------");
+function confirmIPO() {
+	var content = $("*").html();
+	if (content.indexOf("可借贷额已满, 不接受借贷新股认购申请") > -1) {
+		needAutoFresh = true;
+		storage.set({needAutoFresh: needAutoFresh});
+		$("#btnOK").click();
 	}
 }
 
@@ -137,14 +129,25 @@ function fillIPO() {
 		if (checkLogin()) {
 			var content = $("*").html();
 			if (content.indexOf("确认新股认购") > -1) {
-				//$("#btnApply").click();
-				console.log("------------------click-------------");
+				storage.get(['needAutoFresh'], function (o) {
+					if (o.hasOwnProperty('needAutoFresh')) {
+						needAutoFresh = o['needAutoFresh'];
+					}
+					if(needAutoFresh){
+						setTimeout(function () {
+							$("#btnApply").click();
+						}, reloadTime);
+					} else {
+						$("#btnApply").click();
+					}
+				});
 			} else if (content.indexOf("本公司现已确认及接受阁下之申请") > -1) {
 				//$("#btnOK").click();
+				autoFreshOpen = false;
 				console.log("------------------成功-------------");
 			} else {
 				if ($("#rbMargin")) {
-					//$("#rbMargin").click();
+					$("#rbMargin").click();
 					var inputPair = [];
 					inputPair.push({
 						inputid: "qty",
@@ -152,8 +155,8 @@ function fillIPO() {
 					});
 					fillTable(inputPair);
 
-					//$("#btnApply").click();
-					confirmIPO(content);
+					$("#btnApply").click();
+					//confirmIPO(content);
 				} else {
 					autoFresh();
 				}
