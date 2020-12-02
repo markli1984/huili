@@ -16,7 +16,7 @@ var IPONumber = "";
 var IPOCount = "";
 var autoFreshOpen = true;
 var needAutoFresh = false;
-var reloadTime = 30000;
+var reloadTime = 25000;
 
 //快捷键
 chrome.runtime.onMessage.addListener(function(msg){
@@ -117,7 +117,7 @@ function selectIPO(){
 
 function confirmIPO() {
 	var content = $("*").html();
-	if (content.indexOf("可借贷额已满, 不接受借贷新股认购申请") > -1) {
+	if (content.indexOf("可借贷额已满, 不接受借贷新股认购申请") > -1 || content.indexOf("由于认购反应热烈") > -1) {
 		needAutoFresh = true;
 		storage.set({needAutoFresh: needAutoFresh});
 		$("#btnOK").click();
